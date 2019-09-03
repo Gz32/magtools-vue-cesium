@@ -1,6 +1,7 @@
 # magtools-vue-cesium
 
 > a vue project for cesium
+vue-cli项目整合Cesium
 
 ## Build Setup
 
