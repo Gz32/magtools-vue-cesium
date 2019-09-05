@@ -1,5 +1,7 @@
 <template>
-  <div id="cesiumContainer"></div>
+  <div id="cesiumContainer">
+    <div class="statusbar-lonlat"><span>{{mouseLonlat}}</span></div>
+  </div>
 </template>
 
 <script>
@@ -23,8 +25,12 @@
           requestRenderMode: true, // 启用请求渲染模式
           scene3DOnly: false,      // 每个几何实例将只能以3D渲染以节省GPU内存
           sceneMode: 3,            // 初始场景模式 1 2D模式 2 2D循环模式 3 3D模式
+          
+          skyAtmosphere: false, //关闭地球光环
         },
-        viewer: {}
+        viewer: {},
+
+        mouseLonlat: '',
       }
     },
     mounted () {
@@ -49,9 +55,9 @@
       viewer.scene.globe.enableLighting=true; //全局日照（受太阳，月亮的位置而影响光照信息）
   
       //创建初始化摄像机视图
-      var initialPosition=new Cesium.Cartesian3.fromDegrees(110.998114468289017509, 30.674512895646692812, 2631000); //摄像机位置 ，经度，纬度，高度
-      var initialOrientation=new Cesium.HeadingPitchRoll.fromDegrees(7.1077496389876024807, -91.987223091598949054, 0.025883251314954971306);//飞行 专用的  表示旋转角度之类的东西： 飞行中飞机机体轴相对于地面的角位置
-      var homeCameraView={
+      let initialPosition = new Cesium.Cartesian3.fromDegrees(110.998114468289017509, 30.674512895646692812, 2631000); //摄像机位置 ，经度，纬度，高度
+      let initialOrientation = new Cesium.HeadingPitchRoll.fromDegrees(7.1077496389876024807, -91.987223091598949054, 0.025883251314954971306);//飞行 专用的  表示旋转角度之类的东西： 飞行中飞机机体轴相对于地面的角位置
+      let homeCameraView = {
         destination:initialPosition,
         orientation:{
           heading:initialOrientation.heading, //偏航角
@@ -61,10 +67,46 @@
       };
       viewer.scene.camera.setView(homeCameraView);
 
+      let _this = this;
+      // 得到当前三维场景的椭球体
+      let ellipsoid = viewer.scene.globe.ellipsoid;
+      /* 鼠标事件 */
+		  let eventHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);		
+		  // 鼠标移动事件
+		  eventHandler.setInputAction(function (event) {
+		    let cartesian = viewer.camera.pickEllipsoid(event.endPosition, ellipsoid);
+			  if (cartesian) {
+			    // 笛卡尔坐标转地理坐标
+				  let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+				  let lon = Cesium.Math.toDegrees(cartographic.longitude);
+				  let lat = Cesium.Math.toDegrees(cartographic.latitude);
+				  let str = 'Lon: ' + lon.toFixed(4) + '; Lat: ' + lat.toFixed(4);
+				
+				  _this.mouseLonlat = str;
+			  }
+		  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		
+		  // 图层列表
+      let layers = viewer.scene.imageryLayers;
+      
       this.viewer = viewer;
     }
   }
 </script>
 
 <style scoped>
+  .statusbar-lonlat{
+    position: absolute;
+    display: block;
+    width: 240px;
+    height: 25px;
+    border-radius: 25px;
+    bottom: 0px;
+    right: 400px;
+    background-color: rgba(178,178,178,0.5);
+    color: #000;
+    line-height: 25px; 
+    text-align: center;
+    z-index: 999;
+  }
 </style>
