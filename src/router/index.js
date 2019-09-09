@@ -4,7 +4,7 @@ import cesiumViewer from '@/pages/cesiumViewer'
 
 Vue.use(Router)
 
-export default new Router({
+const router =  new Router({
   routes: [
     {
       path: '/',
@@ -12,4 +12,6 @@ export default new Router({
       component: cesiumViewer
     }
   ]
-})
+});
+
+export default router
