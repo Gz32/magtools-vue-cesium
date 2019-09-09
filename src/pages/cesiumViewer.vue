@@ -47,12 +47,12 @@
 
       //设置地形
       viewer.terrainProvider=Cesium.createWorldTerrain({
-        requestWaterMask:true,//水渲染需求
-        requestVertexNormals:true//顶点法线渲染需求
+        requestWaterMask:true,    //水渲染需求
+        requestVertexNormals:true //顶点法线渲染需求
       });
 
       viewer.scene.globe.depthTestAgainstTerrain=true; //深度显示（用于湖泊河流 水深对周围景观的影响）
-      viewer.scene.globe.enableLighting=true; //全局日照（受太阳，月亮的位置而影响光照信息）
+      viewer.scene.globe.enableLighting=true;          //全局日照（受太阳，月亮的位置而影响光照信息）
   
       //创建初始化摄像机视图
       let initialPosition = new Cesium.Cartesian3.fromDegrees(110.998114468289017509, 30.674512895646692812, 2631000); //摄像机位置 ，经度，纬度，高度
