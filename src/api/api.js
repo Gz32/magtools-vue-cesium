@@ -6,6 +6,6 @@ import http from './http'
 export default {
     // 查询湖北省行政区划geojson数据
     queryHbGeoJSON() {
-        return http.get('geojson/provinceHb', {});
+        return http.get('/api/json/province_hb.json', {});
     }
 }

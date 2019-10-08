@@ -5,6 +5,8 @@
 </template>
 
 <script>
+  import api from '@/api/api'
+
   export default {
     name: 'cesiumViewer', // 单页面 index组件(其他组件在这里注册)
     data() {
@@ -66,7 +68,9 @@
         }
       };
       viewer.scene.camera.setView(homeCameraView);
-
+      //取消左键双击事件
+      viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+      
       let _this = this;
       // 得到当前三维场景的椭球体
       let ellipsoid = viewer.scene.globe.ellipsoid;
@@ -85,11 +89,28 @@
 				  _this.mouseLonlat = str;
 			  }
 		  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-		
+		  
 		  // 图层列表
-      let layers = viewer.scene.imageryLayers;
-      
+      let layers = viewer.scene.imageryLayers;      
       this.viewer = viewer;
+      
+      // 加载湖北省地市
+      var color = Cesium.Color.MIDNIGHTBLUE.withAlpha(0.8);      
+      var adminPromise = Cesium.GeoJsonDataSource.load('../static/mock/json/city_hb.json');
+      adminPromise.then(function (dataSource) {
+		    viewer.dataSources.add(dataSource);
+		    var entities = dataSource.entities.values;
+			  for (var i = 0; i < entities.length; i++) {
+			    var entity = entities[i];
+				  var name = entity.name;
+					
+				  entity.polygon.fill = false;				
+				  entity.polygon.outline = true;
+				  entity.polygon.outlineColor = color;
+				  entity.polygon.outlineWidth = 1.2;
+				  entity.polygon.extrudedHeight = entity.properties.area / 10;
+			  }
+		  });
     }
   }
 </script>
