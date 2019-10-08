@@ -1,15 +1,19 @@
 <template>
   <div id="cesiumContainer">
-    <div class="statusbar-lonlat"><span>{{mouseLonlat}}</span></div>
+    <layer-menu class="bar-layer"></layer-menu>
+    <div class="bar-lonlat"><span>{{mouseLonlat}}</span></div>
   </div>
 </template>
 
 <script>
-  import api from '@/api/api'
+  import layerMenu from '@/components/layerMenu'
 
   export default {
     name: 'cesiumViewer', // 单页面 index组件(其他组件在这里注册)
-    data() {
+    components: {
+      layerMenu
+    },
+    data () {
       return {
         config: {
           animation: false, // 是否显示动画控件  
@@ -28,11 +32,13 @@
           scene3DOnly: false,      // 每个几何实例将只能以3D渲染以节省GPU内存
           sceneMode: 3,            // 初始场景模式 1 2D模式 2 2D循环模式 3 3D模式
           
-          skyAtmosphere: false, //关闭地球光环
+          skyAtmosphere: false //关闭地球光环
         },
         viewer: {},
 
-        mouseLonlat: '',
+        mouseLonlat: '', // 鼠标位置经纬度
+
+        cityPath: '../static/mock/json/city_hb.json',
       }
     },
     mounted () {
@@ -84,7 +90,7 @@
 				  let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
 				  let lon = Cesium.Math.toDegrees(cartographic.longitude);
 				  let lat = Cesium.Math.toDegrees(cartographic.latitude);
-				  let str = 'Lon: ' + lon.toFixed(4) + '; Lat: ' + lat.toFixed(4);
+				  let str = 'Lon: ' + lon.toFixed(4) + '  Lat: ' + lat.toFixed(4);
 				
 				  _this.mouseLonlat = str;
 			  }
@@ -96,7 +102,7 @@
       
       // 加载湖北省地市
       var color = Cesium.Color.MIDNIGHTBLUE.withAlpha(0.8);      
-      var adminPromise = Cesium.GeoJsonDataSource.load('../static/mock/json/city_hb.json');
+      var adminPromise = Cesium.GeoJsonDataSource.load(this.cityPath);
       adminPromise.then(function (dataSource) {
 		    viewer.dataSources.add(dataSource);
 		    var entities = dataSource.entities.values;
@@ -110,23 +116,35 @@
 				  entity.polygon.outlineWidth = 1.2;
 				  entity.polygon.extrudedHeight = entity.properties.area / 10;
 			  }
-		  });
-    }
+      });
+      
+      // 获取canvas
+		  var canvas = viewer.scene.canvas;
+    },
   }
 </script>
 
 <style scoped>
-  .statusbar-lonlat{
+  .bar-layer{
+    position: absolute;
+    display: block;    
+    border-radius: 5px;
+    top: 5px;
+    left: 20px;
+    background-color: rgba(48,51,54,0.7);
+    z-index: 999;
+  }
+  .bar-lonlat{
     position: absolute;
     display: block;
-    width: 240px;
-    height: 25px;
-    border-radius: 25px;
-    bottom: 0px;
-    right: 400px;
-    background-color: rgba(178,178,178,0.5);
-    color: #000;
-    line-height: 25px; 
+    width: 220px;
+    height: 21px;
+    border-radius: 8px;
+    bottom: 5px;
+    right: 20px;
+    background-color: rgba(48,51,54,0.7);
+    color: #FFF;
+    line-height: 21px;
     text-align: center;
     z-index: 999;
   }
