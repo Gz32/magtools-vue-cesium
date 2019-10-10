@@ -1,19 +1,35 @@
 <template>
   <div class='layer-container'>
+    <a>
+      <div v-if="isGridLoad" @click="handleGrid">
+        <img src="../assets/img/layer/layer-grid-on.png"/>
+      </div>
+      <div v-else>
+        <img src="../assets/img/layer/layer-grid-off.png"/>
+      </div>
+    </a>
     <a class="layer-item" @click="handleLayer">
-      <div v-if="isLayerAdd">
+      <div v-if="isLayerLoad">
         <img src="../assets/img/layer/layer-map-on.png"/>
       </div>
       <div v-else>
         <img src="../assets/img/layer/layer-map-off.png"/>
       </div>
     </a>
-    <a class="layer-item" @click="handleHotmap">
-      <div v-if="isHotmapAdd">
-        <img src="../assets/img/layer/layer-hotmap-on.png"/>
+    <a class="layer-item" @click="handleHeatmap">
+      <div v-if="isHeatmapLoad">
+        <img src="../assets/img/layer/layer-heatmap-on.png"/>
       </div>
       <div v-else>
-        <img src="../assets/img/layer/layer-hotmap-off.png"/>
+        <img src="../assets/img/layer/layer-heatmap-off.png"/>
+      </div>
+    </a>
+    <a class="layer-item" @click="handleWindy">
+      <div v-if="isWindyLoad">
+        <img src="../assets/img/layer/layer-wind-on.png"/>
+      </div>
+      <div v-else>
+        <img src="../assets/img/layer/layer-wind-off.png"/>
       </div>
     </a>
   </div>
@@ -25,19 +41,28 @@ export default {
   props: {},
   data() {
     return {
-      isLayerAdd: false,
-      isHotmapAdd: false,
+      isGridLoad: false,  // 是否加载经纬网
+      isLayerLoad: false, // 是否加载政区
+      isHeatmapLoad: false, // 是否加载热图
+      isWindyLoad: false,   // 是否加载风场
     }
   },
   methods: {
-    // 添加/删除区划图层
+    // 添加/删除经纬网
+    handleGrid() {
+      this.isGridLoad = !this.isGridLoad;
+    },
+    // 添加/删除政区
     handleLayer() {
-      this.isLayerAdd = !this.isLayerAdd;
+      this.isLayerLoad = !this.isLayerLoad;
     },
     // 添加/删除热图
-    handleHotmap() {
-      this.isHotmapAdd = !this.isHotmapAdd;
+    handleHeatmap() {
+      this.isHeatmapLoad = !this.isHeatmapLoad;
     },
+    handleWindy() {
+      this.isWindyLoad = !this.isWindyLoad;
+    }
   },  
 }
 </script>
