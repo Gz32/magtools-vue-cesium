@@ -1,7 +1,7 @@
 <template>
   <div class='layer-container'>
-    <a>
-      <div v-if="isGridLoad" @click="handleGrid">
+    <a class="layer-item" @click="handleGrid">
+      <div v-if="isGridLoad">
         <img src="../assets/img/layer/layer-grid-on.png"/>
       </div>
       <div v-else>
@@ -50,20 +50,36 @@ export default {
   methods: {
     // 添加/删除经纬网
     handleGrid() {
-      this.isGridLoad = !this.isGridLoad;
+      this.isGridLoad = !this.isGridLoad; 
+      
+      let visible = this.isGridLoad ? 'show' : 'hide';
+      // 触发经纬网图层显示事件
+      this.$emit('showLonlatGridLayerEvent', visible);
     },
     // 添加/删除政区
     handleLayer() {
       this.isLayerLoad = !this.isLayerLoad;
+
+      let visible = this.isLayerLoad ? 'show' : 'hide';
+      // 触发JSON图层显示事件
+      this.$emit('showGeoJSONLayerEvent', visible);
     },
     // 添加/删除热图
     handleHeatmap() {
       this.isHeatmapLoad = !this.isHeatmapLoad;
+
+      let visible = this.isHeatmapLoad ? 'show' : 'hide';
+      // 触发热图图层显示事件
+      this.$emit('showHeatmapLayerEvent', visible);
     },
     handleWindy() {
       this.isWindyLoad = !this.isWindyLoad;
+
+      let visible = this.isWindyLoad ? 'show' : 'hide';
+      // 触发风场图层显示事件
+      this.$emit('showWindyLayerEvent', visible);
     }
-  },  
+  },
 }
 </script>
 
