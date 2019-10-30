@@ -1,13 +1,112 @@
 <template>
-    $END$
+  <div class="mag-popup-container" v-if="visible">
+    <div id="trackPopupContent" class="leaflet-popup" style="top:5px;left:0;">
+      <div class="leaflet-popup-title">
+        <span>{{title}}</span>
+        <a class="leaflet-popup-close-button" href="#" @click="hide"></a>
+      </div>
+      <div class="leaflet-popup-content-wrapper">
+        <div id="trackPopupLink" class="leaflet-popup-content" style="max-width: 300px;">
+          <slot name="content"></slot>
+        </div>
+      </div>
+      <div class="leaflet-popup-tip-container">
+        <div class="leaflet-popup-tip"></div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: ""
+  export default {
+    name: 'magPopup',
+    components: {
+    },
+    props: {
+      // 标题
+      title: {
+        type: String,
+        default: '标题'
+      },
+    },
+    data() {
+      return {
+        visible: false,
+      }
+    },
+    methods: {
+      show() {
+        this.visible = true;
+        return this;
+      },
+      hide() {
+        this.visible = false;
+        this.$emit('popupClosed');
+        return this;
+      },
+      isVisible() {
+        return this.visible;
+      },
     }
+  }
 </script>
 
 <style scoped>
+  .mag-popup-container{
+    display: block;
+  }
 
+  /*leaflet风格气泡窗口样式模板*/
+  .leaflet-popup {
+    position: absolute;
+    text-align: center;
+  }
+  .leaflet-popup-close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px 4px 0 0;
+    text-align: center;
+    width: 18px;
+    height: 14px;
+    font: 16px/14px Tahoma, Verdana, sans-serif;
+    color: #c3c3c3;
+    text-decoration: none;
+    font-weight: bold;
+    background: transparent;
+  }
+  .leaflet-popup-content-wrapper {
+    text-align: center;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+    padding: 1px;
+    text-align: left;
+    border-radius: 12px;
+  }
+  .leaflet-popup-content {
+    margin: 13px 19px;
+    line-height: 1.4;
+  }
+  .leaflet-popup-tip-container {
+    margin: 0 auto;
+    width: 40px;
+    height: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .leaflet-popup-tip {
+    background: white;
+    box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+    width: 17px;
+    height: 17px;
+    padding: 1px;
+    margin: -10px auto 0;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
 </style>

@@ -45,16 +45,14 @@
 
           skyAtmosphere: false //关闭地球光环
         },
+        mouseLonlat: '', // 鼠标位置经纬度
+
         viewer: {},
         layers: null, // 图层列表
 
         cityDS: null,       // 湖北省地市GeoJSON数据源
         lonlatLayer: null,  // 经纬网图层
-        heatmapLayer: null, // 热力图层
-
-        mouseLonlat: '', // 鼠标位置经纬度
-
-        cityPath: '../static/mock/json/city_hb.json',
+        heatmapLayer: null  // 热力图层
       }
     },
     mounted () {
@@ -158,8 +156,11 @@
         let _this = this;
         // 得到当前三维场景的椭球体
         let ellipsoid = viewer.scene.globe.ellipsoid;
-        /* 鼠标事件 */
-		    let eventHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+        let canvas = viewer.scene.canvas; // 获取canvas
+        /* 事件句柄 */
+		    let eventHandler = new Cesium.ScreenSpaceEventHandler(canvas);
+
 		    // 鼠标移动事件
 		    eventHandler.setInputAction(function (event) {
 		      let cartesian = viewer.camera.pickEllipsoid(event.endPosition, ellipsoid);
@@ -171,9 +172,6 @@
             _this.mouseLonlat = 'Lon: ' + lon.toFixed(4) + '  Lat: ' + lat.toFixed(4);
 			    }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-        // 获取canvas
-        var canvas = viewer.scene.canvas;
 
         // 赋值
         this.viewer = viewer; // 视图
@@ -204,12 +202,14 @@
        * @param vs -加载/删除
        */
       showGeoJSONLayer(vs) {
+        let jsonPath = '../static/mock/json/city_hb.json';
+
         let Cesium = this.$Cesium;
         let viewer = this.viewer;
 
         if (vs === 'show') { // 加载湖北省地市
           if (this.cityDS) {
-            viewer.dataSources.add(this.cityDS);
+            viewer.dataSources.add(jsonPath);
           } else {
             let _this = this;
             let color = Cesium.Color.MIDNIGHTBLUE.withAlpha(0.8);
