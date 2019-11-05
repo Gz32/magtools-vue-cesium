@@ -36,63 +36,63 @@
 </template>
 
 <script>
-export default {
-  name: 'layerMenu', // 图层菜单
-  props: {},
-  data() {
-    return {
-      isGridLoad: false,  // 是否加载经纬网
-      isLayerLoad: false, // 是否加载政区
-      isHeatmapLoad: false, // 是否加载热图
-      isWindyLoad: false,   // 是否加载风场
-    }
-  },
-  methods: {
-    // 添加/删除经纬网
-    handleGrid() {
-      this.isGridLoad = !this.isGridLoad; 
-      
-      let visible = this.isGridLoad ? 'show' : 'hide';
-      // 触发经纬网图层显示事件
-      this.$emit('showLonlatGridLayerEvent', visible);
+  export default {
+    name: 'layerMenu', // 图层菜单
+    props: {},
+    data() {
+      return {
+        isGridLoad: false,  // 是否加载经纬网
+        isLayerLoad: false, // 是否加载政区
+        isHeatmapLoad: false, // 是否加载热图
+        isWindyLoad: false,   // 是否加载风场
+      }
     },
-    // 添加/删除政区
-    handleLayer() {
-      this.isLayerLoad = !this.isLayerLoad;
+    methods: {
+      // 添加/删除经纬网
+      handleGrid() {
+        this.isGridLoad = !this.isGridLoad;
 
-      let visible = this.isLayerLoad ? 'show' : 'hide';
-      // 触发JSON图层显示事件
-      this.$emit('showGeoJSONLayerEvent', visible);
+        let visible = this.isGridLoad ? 'show' : 'hide';
+        // 触发经纬网图层显示事件
+        this.$emit('showLonlatGridLayerEvent', visible);
+      },
+      // 添加/删除政区
+      handleLayer() {
+        this.isLayerLoad = !this.isLayerLoad;
+
+        let visible = this.isLayerLoad ? 'show' : 'hide';
+        // 触发JSON图层显示事件
+        this.$emit('showGeoJSONLayerEvent', visible);
+      },
+      // 添加/删除热图
+      handleHeatmap() {
+        this.isHeatmapLoad = !this.isHeatmapLoad;
+
+        let visible = this.isHeatmapLoad ? 'show' : 'hide';
+        // 触发热图图层显示事件
+        this.$emit('showHeatmapLayerEvent', visible);
+      },
+      handleWindy() {
+        this.isWindyLoad = !this.isWindyLoad;
+
+        let visible = this.isWindyLoad ? 'show' : 'hide';
+        // 触发风场图层显示事件
+        this.$emit('showWindyLayerEvent', visible);
+      }
     },
-    // 添加/删除热图
-    handleHeatmap() {
-      this.isHeatmapLoad = !this.isHeatmapLoad;
-
-      let visible = this.isHeatmapLoad ? 'show' : 'hide';
-      // 触发热图图层显示事件
-      this.$emit('showHeatmapLayerEvent', visible);
-    },
-    handleWindy() {
-      this.isWindyLoad = !this.isWindyLoad;
-
-      let visible = this.isWindyLoad ? 'show' : 'hide';
-      // 触发风场图层显示事件
-      this.$emit('showWindyLayerEvent', visible);
-    }
-  },
-}
+  }
 </script>
 
 <style scoped>
-  .layer-container{    
+  .layer-container{
     height: 30px;
     display: flex;
   }
   .layer-item{
     display: inline-flex;
-    margin: 1px 3px 0 3px; /* 上右下左 */    
+    margin: 1px 3px 0 3px; /* 上右下左 */
   }
-  .layer-item :hover{    
+  .layer-item :hover{
     cursor: pointer;
   }
   .layer-item img{
