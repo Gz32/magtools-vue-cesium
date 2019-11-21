@@ -1,0 +1,112 @@
+@font-face {font-family: "iconlayer";
+  src: url('iconlayer.eot?t=1573803735517'); /* IE9 */
+  src: url('iconlayer.eot?t=1573803735517#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('iconlayer.woff?t=1573803735517') format('woff'),
+  url('iconlayer.ttf?t=1573803735517') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+  url('iconlayer.svg?t=1573803735517#iconlayer') format('svg'); /* iOS 4.1- */
+}
+
+:root{
+  --color: #CFCFCF;
+  --sel-color: #2E8CF2;
+}
+
+.iconlayer {
+  font-family: "iconlayer" !important;
+  font-size: 28px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 0.2px;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 30px;
+  text-align: center;
+  position: relative;
+}
+.iconlayer:after {
+  content: " ";
+  position: absolute;
+  display: block;
+  width: 30px;
+  height: 30px;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  transition: opacity .5s ease-in-out;
+  opacity: 0;
+}
+.iconlayer:hover:after {
+  opacity: 1
+}
+
+
+.icon-global:before {
+  content: "\e920";
+  color: var(--color);
+}
+.icon-global-sel:before {
+  content: "\efaf";
+  color: var(--sel-color);
+}
+
+.icon-earth:before {
+  content: "\e63b";
+  color: var(--color);
+}
+.icon-earth-sel:before {
+  content: "\efb0";
+  color: var(--sel-color);
+}
+
+.icon-layers:before {
+  content: "\e63a";
+  color: var(--color);
+}
+.icon-layers-sel:before {
+  content: "\efae";
+  color: var(--sel-color);
+}
+
+.icon-eye:before {
+  content: "\e602";
+  color: var(--color);
+}
+.icon-eye-sel:before {
+  content: "\efb1";
+  color: var(--sel-color);
+}
+
+.icon-orbits:before {
+  content: "\e628";
+  color: var(--color);
+}
+.icon-orbits-sel:before {
+  content: "\efad";
+  color: var(--sel-color);
+}
+
+.icon-heatmap:before {
+  content: "\ec42";
+  color: var(--color);
+}
+.icon-heatmap-sel:before {
+  content: "\e600";
+  color: var(--sel-color);
+}
+
+.icon-contour:before {
+  content: "\efa9";
+  color: var(--color);
+}
+.icon-contour-sel:before {
+  content: "\e601";
+  color: var(--sel-color);
+}
+
+.icon-anchor:before {
+  content: "\efac";
+  color: var(--color);
+}
+.icon-anchor-sel:before {
+  content: "\e752";
+  color: var(--sel-color);
+}

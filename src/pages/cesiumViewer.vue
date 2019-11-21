@@ -1,28 +1,32 @@
 <template>
   <div id="cesiumContainer">
-    <layer-menu class="bar-layer"
-                @showLonlatGridLayerEvent="showLonlatGridLayer"
-                @showHeatmapLayerEvent="showHeatmapLayer"
-                @showGeoJSONLayerEvent="showGeoJSONLayer"
-                @showWindyLayerEvent="showWindyLayer"></layer-menu>
-    <div class="bar-lonlat"><span>{{mouseLonlat}}</span></div>
+    <menu-layer class="menu-bar-layer"
+                @showLayers="handleLayers"
+                @showOrbitsLayer="handleOrbitsLayer"
+                @showGridLayer="handleGridLayer"
+                @showGeoJSONLayer="handleGeoJSONLayer"
+                @showOverviewLayer="handleOverviewLayer"
+                @showHeatmapLayer="handleHeatmapLayer"
+                @showContourLayer="handleContourLayer">
+    </menu-layer>
 
-    <div id="heatmap" style="width: 400px;height:400px;" v-show="false"></div>
+    <div class="leaflet-control-minimap" id="overview"></div>
+    <div class="bar-lonlat"><span>{{mouseLonlat}}</span></div>
   </div>
 </template>
 
 <script>
   import CesiumNavigation from 'cesium-navigation-es6'
 
+  import menuLayer from '@/components/menu/menulayer'
+
   import TileLonlatImageryProvider from '@/js/TileLonlatImageryProvider'
   import HeatmapImageryProvider from '@/js/HeatmapImageryProvider'
-
-  import layerMenu from '@/components/layerMenu'
 
   export default {
     name: 'cesiumViewer', // 单页面 index组件(其他组件在这里注册)
     components: {
-      layerMenu
+      menuLayer
     },
     data () {
       return {
@@ -50,7 +54,9 @@
         viewer: {},
         layers: null, // 图层列表
 
-        cityDS: null,       // 湖北省地市GeoJSON数据源
+        orbitsDS: null, // 卫星轨道数据源
+        chinaDS: null,  // GeoJSON数据源
+
         lonlatLayer: null,  // 经纬网图层
         heatmapLayer: null  // 热力图层
       }
@@ -59,6 +65,171 @@
       this.initViewer();
     },
     methods: {
+      /**** 事件处理函数 ****/
+      /**
+       * 显示/隐藏图层
+       * @param visible -是否可见
+       */
+      handleLayers(visible) {
+      },
+
+      /**
+       * 加载/删除卫星轨道
+       * @param visible -是否可见
+       */
+      handleOrbitsLayer(visible) {
+        let czmlPath = '../static/mock/czml/astro-e2.czml';
+
+        let Cesium = this.$Cesium;
+        let viewer = this.viewer;
+
+        if (visible) {
+          if (this.orbitsDS) {
+            viewer.dataSources.add(this.orbitsDS);
+          } else {
+            let that = this;
+            Cesium.CzmlDataSource.load(czmlPath).then(function (dataSource) {
+              that.orbitsDS = dataSource;
+
+              viewer.dataSources.add(that.orbitsDS);
+            });
+          }
+        } else {
+          if (this.orbitsDS) {
+            viewer.dataSources.remove(this.orbitsDS);
+          }
+        }
+      },
+
+      /**
+       * 加载/删除网格图层
+       * @param visible -是否可见
+       */
+      handleGridLayer(visible) {
+        if (visible) {
+          if (!this.lonlatLayer) {
+            let layer = new TileLonlatImageryProvider({});
+            this.lonlatLayer = this.layers.addImageryProvider(layer);
+          } else {
+            this.layers.add(this.lonlatLayer);
+          }
+        } else {
+          if (this.lonlatLayer) {
+            this.layers.remove(this.lonlatLayer, false);
+          }
+        }
+      },
+
+      /**
+       * 加载/删除网格图层
+       * @param visible -是否可见
+       */
+      handleGeoJSONLayer(visible) {
+        let jsonPath = '../static/mock/json/China.json';
+
+        let Cesium = this.$Cesium;
+        let viewer = this.viewer;
+
+        if (visible) {
+          if (this.chinaDS) {
+            viewer.dataSources.add(this.chinaDS);
+          } else {
+            let that = this;
+            let color = Cesium.Color.CHOCOLATE.withAlpha(0.8);
+            // 加载数据源
+            Cesium.GeoJsonDataSource.load(jsonPath).then(function (dataSource) {
+              let entities = dataSource.entities.values;
+              // 可以指定各个要素的属性
+              for (let i = 0; i < entities.length; i++) {
+                let entity = entities[i];
+
+                entity.polyline.width = 1.0;
+                entity.polyline.material = color;
+                entity.polyline.clampToGround = true;
+              }
+              that.chinaDS = dataSource;
+
+              viewer.dataSources.add(that.chinaDS);
+            });
+          }
+        } else {
+          if (this.chinaDS) {
+            viewer.dataSources.remove(this.chinaDS);
+          }
+        }
+      },
+
+      /**
+       * 显示/隐藏鹰眼
+       * @param visible -是否可见
+       */
+      handleOverviewLayer(visible) {
+      },
+
+      /**
+       * 加载/删除热力图层
+       * @param visible -是否可见
+       */
+      handleHeatmapLayer(visible) {
+        if (visible) {
+          if (!this.heatmapLayer) {
+            let latMin = 28.364807;
+            let latMax = 40.251095;
+            let lonMin = 94.389228;
+            let lonMax = 108.666357;
+
+            let bounds = {
+              west: lonMin,
+              east: lonMax,
+              south: latMin,
+              north: latMax
+            };
+            let max = -100;
+            let min = 100;
+
+            let len = 300;
+            let dataRaw = [];
+            for (let i = 0; i < len; i++) {
+              let point = {
+                x: lonMin + Math.random() * (lonMax - lonMin),
+                y: latMin + Math.random() * (latMax - latMin),
+                value: Math.floor(Math.random() * 100)
+              };
+              max = Math.max(max, point.value);
+              min = Math.min(min, point.value);
+
+              dataRaw.push(point);
+            }
+
+            let data = {};
+            data.min = min;
+            data.max = max;
+            data.points = dataRaw;
+
+            let options = {};
+            options.bounds = bounds;
+            options.data = data;
+
+            let layer = new HeatmapImageryProvider(options);
+            this.heatmapLayer = this.layers.addImageryProvider(layer);
+          } else {
+            this.layers.add(this.heatmapLayer);
+          }
+        } else {
+          if (this.heatmapLayer) {
+            this.layers.remove(this.heatmapLayer, false);
+          }
+        }
+      },
+
+      /**
+       * 加载/删除等值面图层
+       * @param visible -是否可见
+       */
+      handleContourLayer(visible) {
+      },
+
+      /**** 自定义函数 ****/
       /**
        * 初始化视图
        */
@@ -100,7 +271,7 @@
 
         // 创建初始化摄像机视图
         // 摄像机位置 ，经度，纬度，高度
-        let initialPosition = new Cesium.Cartesian3.fromDegrees(110.998114468289017509, 30.674512895646692812, 5631000);
+        let initialPosition = new Cesium.Cartesian3.fromDegrees(110.998114468289017509, 30.674512895646692812, 10631000);
         // 飞行 专用的  表示旋转角度之类的东西： 飞行中飞机机体轴相对于地面的角位置
         let initialOrientation = new Cesium.HeadingPitchRoll.fromDegrees(7.1077496389876024807, -91.987223091598949054, 0.025883251314954971306);
         let homeCameraView = {
@@ -178,141 +349,26 @@
         this.layers = layers; // 图层列表
       },
 
-      /**
-       * 加载/删除经纬网图层
-       * @param vs -加载/删除
-       */
-      showLonlatGridLayer(vs) {
-        if (vs === 'show') {
-          if (!this.lonlatLayer) {
-            let layer = new TileLonlatImageryProvider({});
-            this.lonlatLayer = this.layers.addImageryProvider(layer);
-          } else {
-            this.layers.add(this.lonlatLayer);
-          }
-        } else {
-          if (this.lonlatLayer) {
-            this.layers.remove(this.lonlatLayer, false);
-          }
-        }
-      },
-
-      /**
-       * 加载/删除GeoJSON图层
-       * @param vs -加载/删除
-       */
-      showGeoJSONLayer(vs) {
-        let jsonPath = '../static/mock/json/city_hb.json';
-
-        let Cesium = this.$Cesium;
-        let viewer = this.viewer;
-
-        if (vs === 'show') { // 加载湖北省地市
-          if (this.cityDS) {
-            viewer.dataSources.add(jsonPath);
-          } else {
-            let _this = this;
-            let color = Cesium.Color.MIDNIGHTBLUE.withAlpha(0.8);
-            // 加载数据源
-            Cesium.GeoJsonDataSource.load(this.cityPath).then(function (dataSource) {
-              let entities = dataSource.entities.values;
-              // 可以指定各个要素的属性
-			        for (let i = 0; i < entities.length; i++) {
-                let entity = entities[i];
-                let name = entity.name;
-
-				        entity.polygon.fill = false;
-				        entity.polygon.outline = true;
-				        entity.polygon.outlineColor = color;
-				        entity.polygon.outlineWidth = 1.2;
-				        entity.polygon.extrudedHeight = entity.properties.area / 10;
-              }
-              _this.cityDS = dataSource;
-
-              viewer.dataSources.add(_this.cityDS);
-            });
-          }
-        } else {
-          if (this.cityDS) {
-            viewer.dataSources.remove(this.cityDS);
-          }
-        }
-      },
-
-      /**
-       * 加载/删除热图图层
-       * @param vs -加载/删除
-       */
-      showHeatmapLayer(vs) {
-        if (vs === 'show') { // 加载
-          if (!this.heatmapLayer) {
-            let latMin = 28.364807;
-            let latMax = 40.251095;
-            let lonMin = 94.389228;
-            let lonMax = 108.666357;
-
-            let bounds = {
-              west: lonMin,
-              east: lonMax,
-              south: latMin,
-              north: latMax
-            };
-            let max = -100;
-            let min = 100;
-
-            let len = 300;
-            let dataRaw = [];
-            for (let i = 0; i < len; i++) {
-              let point = {
-                x: lonMin + Math.random() * (lonMax - lonMin),
-                y: latMin + Math.random() * (latMax - latMin),
-                value: Math.floor(Math.random() * 100)
-              };
-              max = Math.max(max, point.value);
-              min = Math.min(min, point.value);
-
-              dataRaw.push(point);
-            }
-
-            let data = {};
-            data.min = min;
-            data.max = max;
-            data.points = dataRaw;
-
-            let options = {};
-            options.bounds = bounds;
-            options.data = data;
-
-            let layer = new HeatmapImageryProvider(options);
-            this.heatmapLayer = this.layers.addImageryProvider(layer);
-          } else {
-            this.layers.add(this.heatmapLayer);
-          }
-        } else {
-          if (this.heatmapLayer) {
-            this.layers.remove(this.heatmapLayer, false);
-          }
-        }
-      },
-
-      /**
-       * 加载/删除风场图层
-       * @param vs -加载/删除
-       */
-      showWindyLayer(vs) {
-      }
     },
   }
 </script>
 
 <style scoped>
-  .bar-layer{
+  .menu-bar-layer{
     position: absolute;
     display: block;
     top: 10px;
-    right: 20px;
+    left: 20px;
     background-color: rgba(48,51,54,0.7);
     border-radius: 5px;
+    z-index: 999;
+  }
+  .leaflet-control-minimap{
+    position: absolute;
+    width: 200px;
+    height: 150px;
+    right: 10px;
+    top: 10px;
     z-index: 999;
   }
   .bar-lonlat{
@@ -325,7 +381,6 @@
     bottom: 10px;
     right: 20px;
     color: #FFF;
-    /*background-color: rgba(48,51,54,0.7);*/
     border-radius: 8px;
     z-index: 999;
   }
