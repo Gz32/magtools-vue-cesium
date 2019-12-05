@@ -55,6 +55,7 @@
         layers: null, // 图层列表
 
         orbitsDS: null, // 卫星轨道数据源
+        gridDs: null,   // 经纬网数据源
         chinaDS: null,  // GeoJSON数据源
 
         lonlatLayer: null,  // 经纬网图层
@@ -121,12 +122,12 @@
       },
 
       /**
-       * 加载/删除网格图层
+       * 加载/删除矢量图层
        * @param visible -是否可见
        */
       handleGeoJSONLayer(visible) {
         let jsonPath = '../static/mock/json/China.json';
-
+        
         let Cesium = this.$Cesium;
         let viewer = this.viewer;
 
@@ -154,7 +155,7 @@
           }
         } else {
           if (this.chinaDS) {
-            viewer.dataSources.remove(this.chinaDS);
+            viewer.dataSources.remove(this.chinaDS, false);
           }
         }
       },
