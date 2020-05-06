@@ -6,6 +6,8 @@
     The "start" method takes the bounds of the map at its current extent and starts the whole gridding,
     interpolation and animation process.
 */
+import Cesium from 'cesium/Cesium'
+
 var Windy = function( params ) {
   var VELOCITY_SCALE = 0.011;             // scale for wind velocity (completely arbitrary--this value looks nice)
   var INTENSITY_SCALE_STEP = 10;            // step size of particle intensity color scale

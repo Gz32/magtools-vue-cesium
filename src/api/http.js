@@ -4,11 +4,7 @@ import QS from 'qs';
 /* 封装axios */
 
 // 设置请求地址
-if (process.env.NODE_ENV == 'development') {
-    axios.defaults.baseURL = 'http://localhost:8089/';
-} else if (process.env.NODE_ENV == 'production') {
-    axios.defaults.baseURL = 'http://192.168.1.154:8080/JT-hd/';
-}
+axios.defaults.baseURL = 'http://localhost:8090/';
 
 axios.defaults.timeout = 50000; // 超时
 //axios.defaults.withCredentials = true; // 跨域请求时是否需要使用凭证
@@ -17,11 +13,12 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 //http request 拦截器
 axios.interceptors.request.use(config => {
-    // 登录流程控制中，根据本地是否存在token判断用户的登录情况        
-    // 但是即使token存在，也有可能token是过期的，所以在每次的请求头中携带token        
-    // 后台根据携带的token判断用户的登录情况，并返回给我们对应的状态码        
+    // 登录流程控制中，根据本地是否存在token判断用户的登录情况
+    // 但是即使token存在，也有可能token是过期的，所以在每次的请求头中携带token
+    // 后台根据携带的token判断用户的登录情况，并返回给我们对应的状态码
     // 而后我们可以在响应拦截器中，根据状态码进行一些统一的操作。
-    const token = store.state.token || sessionStorage.getItem('token');
+    //const token = store.state.token || sessionStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     //token && (config.headers.Authorization = token);
 
     return config;
@@ -39,7 +36,7 @@ axios.interceptors.response.use(response => {
 }, error => { // 请求失败
     const { response } = error;
     if (response) {
-        // 请求已发出，但是不在2xx的范围 
+        // 请求已发出，但是不在2xx的范围
         //errorHandle(response.status, response.data.message);
         return Promise.reject(response);
     } else {
@@ -77,7 +74,7 @@ export function get(url, params = {}) {
 }
 
 /**
- * post方法，对应post请求 
+ * post方法，对应post请求
  * @param {String} url [请求的url地址]
  * @param {Object} data [请求时携带的数据]
  */

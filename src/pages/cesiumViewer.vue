@@ -10,23 +10,31 @@
                 @showContourLayer="handleContourLayer">
     </menu-layer>
 
-    <div class="leaflet-control-minimap" id="overview"></div>
+    <!--<div class="leaflet-control-minimap" id="overview"></div>-->
     <div class="bar-lonlat"><span>{{mouseLonlat}}</span></div>
+
+    <canvas id="windy"></canvas>
   </div>
 </template>
 
 <script>
   import CesiumNavigation from 'cesium-navigation-es6'
 
-  import menuLayer from '@/components/menu/menulayer'
+  import menuLayer from '@/components/menu/menuLayer'
+  import menuMeteo from '@/components/menu/menuMeteo'
 
   import TileLonlatImageryProvider from '@/js/TileLonlatImageryProvider'
   import HeatmapImageryProvider from '@/js/HeatmapImageryProvider'
+  import WindyImageryProvider from '@/js/WindyImageryProvider'
+  import WindImageryProvider from '@/js/WindImageryProvider'
+
+  import api from '@/api/api'
 
   export default {
     name: 'cesiumViewer', // 单页面 index组件(其他组件在这里注册)
     components: {
-      menuLayer
+      menuLayer,
+      menuMeteo
     },
     data () {
       return {
@@ -51,17 +59,20 @@
         },
         mouseLonlat: '', // 鼠标位置经纬度
 
-        viewer: {},
         layers: null, // 图层列表
 
         orbitsDS: null, // 卫星轨道数据源
         chinaDS: null,  // GeoJSON数据源
 
-        lonlatLayer: null,  // 经纬网图层
-        heatmapLayer: null  // 热力图层
+        lonlatLayer: null,   // 经纬网图层
+        heatmapLayer: null,  // 热力图层
+
+        windy: null,
+        started: false
       }
     },
     mounted () {
+      // 初始化视图
       this.initViewer();
     },
     methods: {
@@ -71,6 +82,13 @@
        * @param visible -是否可见
        */
       handleLayers(visible) {
+        this.$HTTP.get('../static/mock/json/province_hb.json').then(res => {
+          console.log('load hb json');
+          let data = res.data;
+
+        }).catch(err => {
+          console.log(err)
+        });
       },
 
       /**
@@ -81,7 +99,7 @@
         let czmlPath = '../static/mock/czml/astro-e2.czml';
 
         let Cesium = this.$Cesium;
-        let viewer = this.viewer;
+        let viewer = window.globeViewer;
 
         if (visible) {
           if (this.orbitsDS) {
@@ -128,7 +146,7 @@
         let jsonPath = '../static/mock/json/China.json';
 
         let Cesium = this.$Cesium;
-        let viewer = this.viewer;
+        let viewer = window.globeViewer;
 
         if (visible) {
           if (this.chinaDS) {
@@ -227,6 +245,48 @@
        * @param visible -是否可见
        */
       handleContourLayer(visible) {
+        // 测试风向图
+        let viewer = window.globeViewer;
+
+        if (visible) {
+          let canvas = document.getElementById("windy");
+          canvas.width = viewer.canvas.width;
+          canvas.height = viewer.canvas.height;
+
+          debugger;
+          // 查询GFS
+          api.fetchGFS().then((res) => {
+            console.log('load gfs');
+            let data = res.data;
+
+            let options = {};
+            options.canvas = canvas;
+            options.data = data;
+            // 创建风场
+            this.windy = new WindImageryProvider(options);
+            // 重绘风场
+            this.redrawWindy();
+
+          }).catch((err) => { });
+
+          let that = this;
+          // 添加监听
+          viewer.camera.moveStart.addEventListener(function () {
+            console.log("move start...");
+            document.getElementById("windy").style.display = "none";
+            if(!!that.windy && that.started){
+              that.windy.stop();
+            }
+          });
+
+          viewer.camera.moveEnd.addEventListener(function () {
+            console.log("move end...");
+            document.getElementById("windy").style.display = "none";
+            if(!!that.windy && that.started){
+              that.redrawWindy();
+            }
+          });
+        }
       },
 
       /**** 自定义函数 ****/
@@ -235,14 +295,11 @@
        */
       initViewer() {
         let Cesium = this.$Cesium;
-        let Viewer = this.$Viewer;
-
         // 资源访问令牌 Cesium token
         Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2OTgxNTY1Ni05ZWQzLTQ5OWMtODVlMS1kZTQyNzE5ODkyMzYiLCJpZCI6MTUzNDgsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1Njc2NTMzMzZ9.lgaMvwkiWOimFhfJ4dgfNmKZDfjqIPaAfg0ycjwFTfc';
 
         // 创建viewer实例
-        //let viewer = new Cesium.Viewer('cesiumContainer', this.config);
-        let viewer = new Viewer('cesiumContainer', this.config);
+        let viewer = new Cesium.Viewer('cesiumContainer', this.config);
 
         let layers = viewer.imageryLayers;
         // 增加地图图片资源提供者（CesiumIon） Cesium官方
@@ -324,7 +381,7 @@
           }
         );
 
-        let _this = this;
+        let that = this;
         // 得到当前三维场景的椭球体
         let ellipsoid = viewer.scene.globe.ellipsoid;
 
@@ -340,20 +397,57 @@
 				    let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
 				    let lon = Cesium.Math.toDegrees(cartographic.longitude);
 				    let lat = Cesium.Math.toDegrees(cartographic.latitude);
-            _this.mouseLonlat = 'Lon: ' + lon.toFixed(4) + '  Lat: ' + lat.toFixed(4);
+            that.mouseLonlat = 'Lon: ' + lon.toFixed(4) + '  Lat: ' + lat.toFixed(4);
 			    }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
         // 赋值
-        this.viewer = viewer; // 视图
+        window.globeViewer = viewer; // 视图(全局对象!!!)
         this.layers = layers; // 图层列表
       },
 
-    },
+      /**
+       * 重绘风场
+       */
+      redrawWindy() {
+        let viewer = window.globeViewer;
+        let width = viewer.canvas.width;
+        let height = viewer.canvas.height;
+
+        let canvas = document.getElementById("windy");
+        canvas.width = width;
+        canvas.height = height;
+
+        this.windy.stop();
+
+        debugger;
+        let that = this;
+        setTimeout(function () {
+          that.started = that.windy.start(
+            [[0,0],[width, height]],
+            width,
+            height
+          );
+          document.getElementById("windy").style.display = "block";
+        }, 200);
+      }
+
+    }
+
   }
 </script>
 
 <style scoped>
+  #windy{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+  }
   .menu-bar-layer{
     position: absolute;
     display: block;
@@ -363,7 +457,7 @@
     border-radius: 5px;
     z-index: 999;
   }
-  .leaflet-control-minimap{
+  .leaflet-control-minimap{0
     position: absolute;
     width: 200px;
     height: 150px;

@@ -23,7 +23,7 @@ import Heatmap from 'heatmap.js'
 
 let defaultValue = Cesium.defaultValue;
 let defined = Cesium.defined;
-let CesiumEvent = Cesium.Event;
+//let CesiumEvent = Cesium.Event;
 let DeveloperError = Cesium.DeveloperError;
 let WebMercatorProjection = Cesium.WebMercatorProjection;
 let WebMercatorTilingScheme = Cesium.WebMercatorTilingScheme;
@@ -35,7 +35,7 @@ let Cartesian2 = Cesium.Cartesian2;
 let defineProperties = Cesium.defineProperties;
 
 let HeatmapImageryProvider = function (options) {
-  options = defaultValue(options, {});
+  options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
   let bounds = options.bounds;
   if (!defined(bounds)) {
@@ -88,6 +88,7 @@ let HeatmapImageryProvider = function (options) {
   }
 };
 
+/**** 属性 ****/
 defineProperties(HeatmapImageryProvider.prototype, {
   /**
    * Gets the width of each tile, in pixels. This function should

@@ -28,7 +28,7 @@
   import '@/assets/icon/layer/iconlayer.css'
 
   export default {
-    name: "menuLayer",
+    name: "menuLayer", // 图层菜单
     data () {
       return {
         globalIconClass: 'icon-global',

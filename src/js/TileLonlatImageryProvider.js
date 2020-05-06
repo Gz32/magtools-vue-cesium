@@ -27,7 +27,7 @@ let GeographicTilingScheme = Cesium.GeographicTilingScheme;
 let defineProperties = Cesium.defineProperties;
 
 let TileLonlatImageryProvider = function (options) {
-  options = Cesium.defaultValue(options, defaultValue.EMPTY_OBJECT);
+  options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
   this._tilingScheme = defined(options.tilingScheme) ? options.tilingScheme : new GeographicTilingScheme({ ellipsoid: options.ellipsoid });
   this._color = defaultValue(options.color, Color.YELLOW);

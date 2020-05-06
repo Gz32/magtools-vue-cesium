@@ -18,16 +18,16 @@
 
 import Cesium from 'cesium/Cesium'
 
-var defaultValue = Cesium.defaultValue;
-var defined = Cesium.defined;
-var resolve = Cesium.when.resolve;
-var CesiumEvent = Cesium.Event;
-var Color = Cesium.Color;
-var GeographicTilingScheme = Cesium.GeographicTilingScheme;
-var defineProperties = Cesium.defineProperties;
+let defaultValue = Cesium.defaultValue;
+let defined = Cesium.defined;
+let resolve = Cesium.when.resolve;
+let CesiumEvent = Cesium.Event;
+let Color = Cesium.Color;
+let GeographicTilingScheme = Cesium.GeographicTilingScheme;
+let defineProperties = Cesium.defineProperties;
 
-var GraticulesImageryProvider = function (options) {
-  options = Cesium.defaultValue(options, defaultValue.EMPTY_OBJECT);
+let GraticulesImageryProvider = function (options) {
+  options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
   this._tilingScheme = defined(options.tilingScheme) ? options.tilingScheme : new GeographicTilingScheme({ ellipsoid: options.ellipsoid });
   this._color = defaultValue(options.color, Color.YELLOW);
