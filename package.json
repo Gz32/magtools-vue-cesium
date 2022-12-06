@@ -15,7 +15,7 @@
     "cesium-navigation-es6": "^1.0.9",
     "heatmap.js": "^2.0.5",
     "leaflet": "^1.6.0",
-    "qs": "^6.8.0",
+    "qs": "^6.8.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },
